@@ -1,0 +1,41 @@
+<?php
+
+/**
+ * @file
+ * This simple module logs peak memory usage.
+ */
+
+use Drupal\Component\Utility\Timer;
+use Drupal\Core\Url;
+
+/**
+ * Runs on shutdown to log peak memory usage.
+ *
+ * MemoryProfilerEventSubscriber::onRequest registers this function as a
+ * shutdown function.
+ * The bulk of the work is done in memory_profiler_shutdown_real().
+ */
+function memory_profiler_shutdown() {
+  // Registers the real shutdown function so it runs later than other shutdown
+  // functions.
+  drupal_register_shutdown_function('memory_profiler_shutdown_real');
+}
+
+/**
+ * Runs on shutdown to log peak memory usage.
+ *
+ * The memory_profiler_shutdown() function registers the below function as a
+ * shutdown function.
+ */
+function memory_profiler_shutdown_real() {
+  $memory_peak = round(memory_get_peak_usage(TRUE) / 1024 / 1024, 2);
+  $url = substr(Url::fromRoute('<current>')->toString(), 1);
+  $path = Url::fromRoute('<current>')->getInternalPath();
+  Timer::stop('memory_profiler');
+  $run_time = round(Timer::read('memory_profiler') / 1000, 2);
+  $message = "<b>$run_time</b> S <b>$memory_peak</b> MB - <b>$path</b>";
+  $message = ($url != $path) ? $message . " ($url)" : $message;
+
+  \Drupal::logger('memory_profiler')->debug($message);
+  echo "<p style='text-align:center;color:black;background:white;'>$message</p><br><br>";
+}
