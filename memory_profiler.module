@@ -28,6 +28,13 @@ function memory_profiler_shutdown() {
  * shutdown function.
  */
 function memory_profiler_shutdown_real() {
+  $account = \Drupal::currentUser();
+  $site_config = \Drupal::config('memory_profiler.settings');
+
+  if ($account->isAnonymous() && !$site_config->get('anonymous')) {
+    return;
+  }
+
   $memory_peak = round(memory_get_peak_usage(TRUE) / 1024 / 1024, 2);
   $url = substr(Url::fromRoute('<current>')->toString(), 1);
   $path = Url::fromRoute('<current>')->getInternalPath();
@@ -36,6 +43,11 @@ function memory_profiler_shutdown_real() {
   $message = "<b>$run_time</b> S <b>$memory_peak</b> MB - <b>$path</b>";
   $message = ($url != $path) ? $message . " ($url)" : $message;
 
-  \Drupal::logger('memory_profiler')->debug($message);
-  echo "<p style='text-align:center;color:black;background:white;'>$message</p><br><br>";
+  if ($site_config->get('watchdog')) {
+    \Drupal::logger('memory_profiler')->debug($message);
+  }
+
+  if (!\Drupal::request()->isXmlHttpRequest() && $site_config->get('echo') && $account->hasPermission('access memory profiler')) {
+    echo "<p style='text-align:center;color:black;background:white;'>$message</p><br><br>";
+  }
 }

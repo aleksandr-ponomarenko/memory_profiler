@@ -1,0 +1,8 @@
+memory_profiler.settings:
+  path: '/admin/config/development/memory-profiler'
+  defaults:
+    _form: '\Drupal\memory_profiler\Form\MemoryProfilerForm'
+    _title: 'Memory profiler settings'
+  requirements:
+    _permission: 'administer site configuration'
+

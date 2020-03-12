@@ -1,0 +1,6 @@
+memory_profiler.settings:
+  title: 'Memory profiler'
+  parent: system.admin_config_development
+  description: 'Memory profiler module configuration.'
+  route_name: memory_profiler.settings
+  weight: 0

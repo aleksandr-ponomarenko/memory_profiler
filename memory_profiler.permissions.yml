@@ -1,0 +1,4 @@
+access memory profiler:
+  description: 'View memory profiler debug output.'
+  title: 'Access memory profiler information'
+  restrict access: TRUE
