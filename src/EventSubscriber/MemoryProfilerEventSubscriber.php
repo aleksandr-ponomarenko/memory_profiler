@@ -31,7 +31,7 @@ class MemoryProfilerEventSubscriber implements EventSubscriberInterface {
    */
   public static function getSubscribedEvents() {
     // Set a low value to start as early as possible.
-    $events[KernelEvents::REQUEST][] = array('onRequest', -100);
+    $events[KernelEvents::REQUEST][] = ['onRequest', -100];
 
     return $events;
   }
