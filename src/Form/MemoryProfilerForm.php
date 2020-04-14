@@ -56,6 +56,24 @@ class MemoryProfilerForm extends ConfigFormBase {
       '#description' => $this->t('If checked, each request from anonymous user will be logged.'),
     ];
 
+    $form['track'] = [
+      '#type' => 'details',
+      '#title' => $this->t('Track'),
+      '#open' => TRUE,
+    ];
+    $form['track']['memory'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Min memory usage to track'),
+      '#default_value' => $site_config->get('memory'),
+      '#description' => $this->t('If not empty or more then 0, will be tracked only higher values.'),
+    ];
+    $form['track']['time'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Min execution time to track'),
+      '#default_value' => $site_config->get('time'),
+      '#description' => $this->t('If not empty or more then 0, will be tracked only higher values (e.g. 4 or 5.5).'),
+    ];
+
     return parent::buildForm($form, $form_state);
   }
 
@@ -67,6 +85,8 @@ class MemoryProfilerForm extends ConfigFormBase {
       ->set('watchdog', $form_state->getValue('watchdog'))
       ->set('echo', $form_state->getValue('echo'))
       ->set('anonymous', $form_state->getValue('anonymous'))
+      ->set('memory', $form_state->getValue('memory'))
+      ->set('time', $form_state->getValue('time'))
       ->save();
 
     parent::submitForm($form, $form_state);

@@ -40,13 +40,21 @@ function memory_profiler_shutdown_real() {
   $path = Url::fromRoute('<current>')->getInternalPath();
   Timer::stop('memory_profiler');
   $run_time = round(Timer::read('memory_profiler') / 1000, 2);
+
+  // Memory or time limit.
+  if (($run_time - ($site_config->get('time') ?? 0) < 0) && ($memory_peak - ($site_config->get('memory') ?? 0) < 0)) {
+    return;
+  }
+
   $message = "<b>$run_time</b> S <b>$memory_peak</b> MB - <b>$path</b>";
   $message = ($url != $path) ? $message . " ($url)" : $message;
 
+  // Watchdog.
   if ($site_config->get('watchdog')) {
     \Drupal::logger('memory_profiler')->debug($message);
   }
 
+  // Echo.
   if (!\Drupal::request()->isXmlHttpRequest() && $site_config->get('echo') && $account->hasPermission('access memory profiler')) {
     echo "<p style='text-align:center;color:black;background:white;'>$message</p><br><br>";
   }
