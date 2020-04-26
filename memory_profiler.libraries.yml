@@ -1,0 +1,7 @@
+memory_profiler:
+  version: VERSION
+  js:
+    js/memory_profiler.js: { }
+  dependencies:
+    - core/drupal
+    - core/jquery

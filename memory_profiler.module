@@ -6,6 +6,7 @@
  */
 
 use Drupal\Component\Utility\Timer;
+use Drupal\Core\StreamWrapper\PublicStream;
 use Drupal\Core\Url;
 
 /**
@@ -28,6 +29,18 @@ function memory_profiler_shutdown() {
  * shutdown function.
  */
 function memory_profiler_shutdown_real() {
+  if (\Drupal::routeMatch()->getRouteName() == 'memory_profiler.ajax_performance_data') {
+    return;
+  }
+
+  $url = substr(Url::fromRoute('<current>')->toString(), 1);
+  $path = Url::fromRoute('<current>')->getInternalPath();
+
+  // ToDo it configurable.
+  if (strpos($path, PublicStream::basePath()) === 0) {
+    return;
+  }
+
   $account = \Drupal::currentUser();
   $site_config = \Drupal::config('memory_profiler.settings');
 
@@ -35,9 +48,7 @@ function memory_profiler_shutdown_real() {
     return;
   }
 
-  $memory_peak = round(memory_get_peak_usage(TRUE) / 1024 / 1024, 2);
-  $url = substr(Url::fromRoute('<current>')->toString(), 1);
-  $path = Url::fromRoute('<current>')->getInternalPath();
+  $memory_peak = round(memory_get_peak_usage(FALSE) / 1024 / 1024, 2);
   Timer::stop('memory_profiler');
   $run_time = round(Timer::read('memory_profiler') / 1000, 2);
 
@@ -46,7 +57,8 @@ function memory_profiler_shutdown_real() {
     return;
   }
 
-  $message = "<b>$run_time</b> S <b>$memory_peak</b> MB - <b>$path</b>";
+  $message = "<b>$run_time</b>s <b>$memory_peak</b>mb - <b>$path</b>";
+  $ajax_message = "{$run_time}s {$memory_peak}mb";
   $message = ($url != $path) ? $message . " ($url)" : $message;
 
   // Watchdog.
@@ -54,8 +66,33 @@ function memory_profiler_shutdown_real() {
     \Drupal::logger('memory_profiler')->debug($message);
   }
 
-  // Echo.
-  if (!\Drupal::request()->isXmlHttpRequest() && $site_config->get('echo') && $account->hasPermission('access memory profiler')) {
-    echo "<p style='text-align:center;color:black;background:white;'>$message</p><br><br>";
+  // Admin menu.
+  if ($site_config->get('echo') && $account->hasPermission('access memory profiler')) {
+    $tempstore = \Drupal::service('tempstore.private')->get('memory_profiler');
+    $storage = $tempstore->get('storage');
+    $storage = $storage ? $storage : [];
+    $storage[] = $ajax_message;
+    $tempstore->set('storage', $storage);
   }
+}
+
+/**
+ * Implements hook_toolbar().
+ */
+function memory_profiler_toolbar() {
+  return [
+    'memory_profiler' => [
+      '#type' => 'toolbar_item',
+      'tab' => [
+        '#type' => 'markup',
+        '#markup' => '<div id="memory-profiler" class="toolbar-item">Updating...</div>',
+      ],
+      '#weight' => 200,
+      '#attached' => [
+        'library' => [
+          'memory_profiler/memory_profiler',
+        ],
+      ],
+    ],
+  ];
 }

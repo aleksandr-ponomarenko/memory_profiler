@@ -6,3 +6,9 @@ memory_profiler.settings:
   requirements:
     _permission: 'administer site configuration'
 
+memory_profiler.ajax_performance_data:
+  path: '/memory-profiler/ajax/performance-data'
+  defaults:
+    _controller: 'Drupal\memory_profiler\Controller\AjaxPerformanceData::get'
+  requirements:
+    _permission: 'access content'

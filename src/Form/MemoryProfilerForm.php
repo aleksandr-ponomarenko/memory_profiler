@@ -43,11 +43,12 @@ class MemoryProfilerForm extends ConfigFormBase {
       '#default_value' => $site_config->get('watchdog'),
       '#description' => $this->t('If checked, the message will be logged via watchdog system.'),
     ];
+    // Todo check if admin menu module enabled
     $form['appearence']['echo'] = [
       '#type' => 'checkbox',
-      '#title' => $this->t('Log statistics into page footer'),
+      '#title' => $this->t('Log statistics into Admin menu area'),
       '#default_value' => $site_config->get('echo'),
-      '#description' => $this->t('If checked, the message will be printed at the end of the page.'),
+      '#description' => $this->t('If checked, the message will be printed at the Admin menu header.'),
     ];
     $form['appearence']['anonymous'] = [
       '#type' => 'checkbox',
