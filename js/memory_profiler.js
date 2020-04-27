@@ -19,7 +19,6 @@
           success: function (results) {
             if (results) {
               $('#memory-profiler').html(results);
-              console.log(results);
             }
           }
         });
@@ -27,6 +26,9 @@
         triggered = true;
       }
 
+      $('#memory-profiler', context).once().click(function(event) {
+        $('#memory-profiler-long', context).toggle();
+      });
     }
   };
 

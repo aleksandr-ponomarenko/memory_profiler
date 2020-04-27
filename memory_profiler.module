@@ -33,11 +33,15 @@ function memory_profiler_shutdown_real() {
     return;
   }
 
-  $url = substr(Url::fromRoute('<current>')->toString(), 1);
-  $path = Url::fromRoute('<current>')->getInternalPath();
+  $path = \Drupal::service('path.current')->getPath();
+  $alias = \Drupal::service('path.alias_manager')->getAliasByPath($path);
+
+  if (!Url::fromRoute('<current>')->isRouted()) {
+    return;
+  }
 
   // ToDo it configurable.
-  if (strpos($path, PublicStream::basePath()) === 0) {
+  if (strpos($path, '/' . PublicStream::basePath()) === 0) {
     return;
   }
 
@@ -58,8 +62,12 @@ function memory_profiler_shutdown_real() {
   }
 
   $message = "<b>$run_time</b>s <b>$memory_peak</b>mb - <b>$path</b>";
-  $ajax_message = "{$run_time}s {$memory_peak}mb";
-  $message = ($url != $path) ? $message . " ($url)" : $message;
+  $message = ($alias != $path) ? $message . " ($alias)" : $message;
+  $ajax_elem = [
+    'short' => "{$run_time}s {$memory_peak}mb",
+    'long' => $message,
+  ];
+
 
   // Watchdog.
   if ($site_config->get('watchdog')) {
@@ -71,7 +79,7 @@ function memory_profiler_shutdown_real() {
     $tempstore = \Drupal::service('tempstore.private')->get('memory_profiler');
     $storage = $tempstore->get('storage');
     $storage = $storage ? $storage : [];
-    $storage[] = $ajax_message;
+    $storage[] = $ajax_elem;
     $tempstore->set('storage', $storage);
   }
 }
@@ -80,12 +88,19 @@ function memory_profiler_shutdown_real() {
  * Implements hook_toolbar().
  */
 function memory_profiler_toolbar() {
+  $account = \Drupal::currentUser();
+  $site_config = \Drupal::config('memory_profiler.settings');
+  $moduleHandler = \Drupal::service('module_handler');
+  if (!$moduleHandler->moduleExists('admin_toolbar') || !$site_config->get('echo') || !$account->hasPermission('access memory profiler')){
+    return [];
+  }
+
   return [
     'memory_profiler' => [
       '#type' => 'toolbar_item',
       'tab' => [
         '#type' => 'markup',
-        '#markup' => '<div id="memory-profiler" class="toolbar-item">Updating...</div>',
+        '#markup' => '<div id="memory-profiler" class="toolbar-item toolbar-icon toolbar-icon-system-admin-config">Updating...</div>',
       ],
       '#weight' => 200,
       '#attached' => [

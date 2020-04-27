@@ -2,6 +2,9 @@ memory_profiler:
   version: VERSION
   js:
     js/memory_profiler.js: { }
+  css:
+    theme:
+      css/memory_profiler.css: { }
   dependencies:
     - core/drupal
     - core/jquery
