@@ -68,7 +68,6 @@ function memory_profiler_shutdown_real() {
     'long' => $message,
   ];
 
-
   // Watchdog.
   if ($site_config->get('watchdog')) {
     \Drupal::logger('memory_profiler')->debug($message);
@@ -91,7 +90,7 @@ function memory_profiler_toolbar() {
   $account = \Drupal::currentUser();
   $site_config = \Drupal::config('memory_profiler.settings');
   $moduleHandler = \Drupal::service('module_handler');
-  if (!$moduleHandler->moduleExists('admin_toolbar') || !$site_config->get('echo') || !$account->hasPermission('access memory profiler')){
+  if (!$moduleHandler->moduleExists('admin_toolbar') || !$site_config->get('echo') || !$account->hasPermission('access memory profiler')) {
     return [];
   }
 

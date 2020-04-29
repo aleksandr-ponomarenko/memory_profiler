@@ -8,7 +8,8 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * Class AjaxPerformanceData.
  */
-class AjaxPerformanceData  extends ControllerBase {
+class AjaxPerformanceData extends ControllerBase {
+
   /**
    * Ajax callback for main performance data.
    */
@@ -27,7 +28,6 @@ class AjaxPerformanceData  extends ControllerBase {
     foreach ($storage as $value) {
       $details .= "<div>{$value['long']}</div>";
     }
-
 
     $markup = [
       '#type' => 'markup',
