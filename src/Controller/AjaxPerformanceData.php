@@ -14,7 +14,8 @@ class AjaxPerformanceData extends ControllerBase {
    * Ajax callback for main performance data.
    */
   public function get() {
-    $tempstore = \Drupal::service('tempstore.private')->get('memory_profiler');
+    $uuid = session_id();
+    $tempstore = \Drupal::service('tempstore.private')->get("memory_profiler_$uuid");
     $storage = $tempstore->get('storage');
     $tempstore->set('storage', NULL);
     $storage = is_array($storage ?? []) ? $storage : [];

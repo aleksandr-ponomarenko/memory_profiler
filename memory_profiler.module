@@ -75,7 +75,8 @@ function memory_profiler_shutdown_real() {
 
   // Admin menu.
   if ($site_config->get('echo') && $account->hasPermission('access memory profiler')) {
-    $tempstore = \Drupal::service('tempstore.private')->get('memory_profiler');
+    $uuid = session_id();
+    $tempstore = \Drupal::service('tempstore.private')->get("memory_profiler_$uuid");
     $storage = $tempstore->get('storage');
     $storage = $storage ? $storage : [];
     $storage[] = $ajax_elem;
